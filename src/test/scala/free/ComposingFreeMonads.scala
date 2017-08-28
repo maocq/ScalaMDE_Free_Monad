@@ -40,6 +40,8 @@ class ComposingFreeMonads extends FunSuite{
     implicit def services[F[_]](implicit I: InjectK[Service, F]): Services[F] = new Services[F]
   }
 
+
+
   class Logs[F[_]](implicit I: InjectK[Log, F]) {
     def infoI(msg: String): Free[F, Unit] = Free.inject[Log, F](Info(msg))
     def errorI(msg: String): Free[F, Unit] = Free.inject[Log, F](Error(msg))

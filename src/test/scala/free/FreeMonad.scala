@@ -194,5 +194,43 @@ class FreeMonad extends FunSuite {
   }
 
 
+
+  test("Free monad with OptionTInterpreter") {
+    import cats.data.OptionT
+    import scala.concurrent.{Future, Await}
+    import scala.concurrent.duration._
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    import cats.~>
+    import cats.implicits._
+
+    type FutureOpt[A] = OptionT[Future, A]
+
+    object ServiceOptionT extends (Service ~> FutureOpt) {
+      def apply[A](fa: Service[A]): FutureOpt[A] = fa match {
+
+        case GetUserName(userId) =>
+          OptionT( Future( Option("Mauricio") ) )
+
+        case GetUserPhoto(userId) =>
+          OptionT( Future( Option(" (°~°) ") ) )
+
+      }
+    }
+
+    val user: FutureOpt[User] = getUser( 1 ).foldMap( ServiceOptionT )
+
+    /*
+    user.map{ u =>
+      assert( u.photo == " (°~°) " )
+    }
+    */
+
+    val r: Option[User] = Await.result(user.value, 10 seconds)
+    assert( r.isDefined )
+
+  }
+
+
 }
 
