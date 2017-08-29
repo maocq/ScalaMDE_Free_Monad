@@ -61,7 +61,7 @@ class FreeMonad extends FunSuite {
   test("Free monad with IdInterpreters") {
     import cats.{Id, ~>}
 
-    object ServiceHappy extends (Service ~> Id) {
+    object HappyService extends (Service ~> Id) {
       def apply[A](fa: Service[A]): Id[A] = fa match {
 
         case GetUserName(userId) =>
@@ -73,7 +73,7 @@ class FreeMonad extends FunSuite {
       }
     }
 
-    object ServiceSad extends (Service ~> Id) {
+    object SadService extends (Service ~> Id) {
       def apply[A](fa: Service[A]): Id[A] = fa match {
 
         case GetUserName(userId) =>
@@ -86,7 +86,7 @@ class FreeMonad extends FunSuite {
     }
 
     val isHappy = false
-    val interpreter = if( isHappy ) ServiceHappy else ServiceSad
+    val interpreter = if( isHappy ) HappyService else SadService
 
     val user = getUser( 1 ).foldMap( interpreter )
     assert( user.photo == " ◉︵◉ " )
